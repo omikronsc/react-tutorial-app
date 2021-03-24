@@ -21,25 +21,15 @@ class Board extends React.Component {
     }
 
     render() {
-        return (
-            <div>
-                <div className="board-row">
-                    {this.renderSquare(0)}
-                    {this.renderSquare(1)}
-                    {this.renderSquare(2)}
-                </div>
-                <div className="board-row">
-                    {this.renderSquare(3)}
-                    {this.renderSquare(4)}
-                    {this.renderSquare(5)}
-                </div>
-                <div className="board-row">
-                    {this.renderSquare(6)}
-                    {this.renderSquare(7)}
-                    {this.renderSquare(8)}
-                </div>
-            </div>
-        );
+        let board = [];
+        for (let y = 0; y < 3; y++) {
+            let row = [];
+            for (let x = 0; x < 3; x++) {
+                row.push(this.renderSquare(3 * x + y));
+            }
+            board.push(<div className="board-row">{row}</div>);
+        };
+        return <div>{board}</div>;
     }
 }
 
@@ -53,6 +43,7 @@ class Game extends React.Component {
             }],
             stepNumber: 0,
             xIsNext: true,
+            reverseMoves: false,
         }
     }
 
@@ -72,6 +63,12 @@ class Game extends React.Component {
             stepNumber: history.length,
             xIsNext: !this.state.xIsNext,
         });
+    }
+
+    handleReverseMovesChange() {
+        this.setState({
+            reverseMoves: !this.state.reverseMoves,
+        })
     }
 
     jumpTo(step) {
@@ -106,6 +103,11 @@ class Game extends React.Component {
             );
         });
 
+        const reverseMoves = this.state.reverseMoves;
+        if (reverseMoves) {
+            moves.reverse();
+        }
+
         let status;
         if (winner) {
             status = 'Winnder: ' + winner;
@@ -115,15 +117,22 @@ class Game extends React.Component {
         return (
             <div className="game">
                 <div className="game-board">
-
-                    <Board 
+                    <Board
                         squares={current.squares}
                         onClick={(i) => this.handleClick(i)}
                     />
                 </div>
                 <div className="game-info">
                     <div>{status}</div>
-                    <ol>{moves}</ol>
+                    <ol reversed={reverseMoves}>{moves}</ol>
+                    <label>
+                        <input
+                            type="checkbox"
+                            checked={this.state.reverseMoves}
+                            onChange={() => this.handleReverseMovesChange()}
+                        />
+                        reverse move order
+                    </label>
                 </div>
             </div>
         );
